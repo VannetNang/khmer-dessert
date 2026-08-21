@@ -18,7 +18,7 @@ const collection = {
   curator: "Nang Vannet",
 
   // Where does your knowledge come from? A person, a place, a community.
-  source: "From the community, website, and youtube",
+  source: "From the community, street-vendors, and my family",
 };
 
 export default collection;
