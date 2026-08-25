@@ -77,6 +77,7 @@ const Home = () => {
       <EntryCard
         title="Nom Ansorm Chchek"
         description="Traditional sticky rice cake filled with ripe bananas and yellow mung beans, tightly wrapped in banana leaves and slow-cooked to a deep purple hue."
+        contributor="Nang Vannet"
         place="Phnom Penh"
         image="https://flavourfullygood.com/wp-content/uploads/2022/07/Num-Ansom-Chrouk-Cooked-Flavourfully-Good-1024x683.jpg"
       />
@@ -85,6 +86,7 @@ const Home = () => {
       <EntryCard
         title="Nom Ansorm Khpos"
         description="A savory variation packed with pork belly and mung beans, prepared traditionally during Pchum Ben and Khmer New Year festivals."
+        contributor="Family Recipe"
         place="Kandal Province"
         image="https://www.shutterstock.com/image-photo/num-ansom-jrouk-khmer-sticky-260nw-2048965706.jpg"
       />

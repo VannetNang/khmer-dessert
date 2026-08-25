@@ -34,7 +34,7 @@ const EntryCard = ({ title, description, contributor, place, image }) => {
       <p style={styles.cardValue}>{title}</p>
       <p style={styles.cardLabel}>Description</p>
       <p style={styles.cardValue}>{description}</p>
-      {/* <p style={styles.cardLabel}>Contributor</p> */}
+      <p style={styles.cardLabel}>Contributor</p>
       <p style={styles.cardValue}>{contributor}</p>
       <p style={styles.cardLabel}>Place</p>
       <p style={styles.cardValue}>{place}</p>
