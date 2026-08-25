@@ -1,4 +1,5 @@
 import collection from "../collection.config.js";
+import EntryCard from "../components/EntryCard.js";
 
 const styles = {
   wrap: {
@@ -56,7 +57,7 @@ const styles = {
   },
 };
 
-export default function Home() {
+const Home = () => {
   return (
     <main style={styles.wrap}>
       <p style={styles.kicker}>KHMER LIVING ARCHIVE</p>
@@ -72,7 +73,23 @@ export default function Home() {
         <p style={styles.cardValue}>{collection.source}</p>
       </div>
 
-      <p style={styles.count}>entries in the archive: 0 (for now)</p>
+      {/* Entry 1 */}
+      <EntryCard
+        title="Nom Ansorm Chchek"
+        description="Traditional sticky rice cake filled with ripe bananas and yellow mung beans, tightly wrapped in banana leaves and slow-cooked to a deep purple hue."
+        place="Phnom Penh"
+        image="https://flavourfullygood.com/wp-content/uploads/2022/07/Num-Ansom-Chrouk-Cooked-Flavourfully-Good-1024x683.jpg"
+      />
+
+      {/* Entry 2 */}
+      <EntryCard
+        title="Nom Ansorm Khpos"
+        description="A savory variation packed with pork belly and mung beans, prepared traditionally during Pchum Ben and Khmer New Year festivals."
+        place="Kandal Province"
+        image="https://www.shutterstock.com/image-photo/num-ansom-jrouk-khmer-sticky-260nw-2048965706.jpg"
+      />
+
+      <p style={styles.count}>entries in the archive: 2 (for now)</p>
 
       <footer style={styles.footer}>
         Built in ICT 340 — Vibe Coding, American University of Phnom Penh, Fall
@@ -81,4 +98,6 @@ export default function Home() {
       </footer>
     </main>
   );
-}
+};
+
+export default Home;
