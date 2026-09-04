@@ -1,0 +1,48 @@
+/* ============================================================
+   Homepage styles
+   ------------------------------------------------------------
+   The project deliberately uses NO CSS framework (see
+   AGENTS.md), so the responsive card grid that Tailwind would
+   normally provide is written here as plain CSS media queries.
+
+   Classes mirror the requested grid:
+     mobile : 1 column
+     >= 768px : 2 columns
+     >= 1024px : 3 columns
+   ============================================================ */
+
+/* Khmer Unicode needs a font stack that includes Khmer-capable
+   typefaces, otherwise the script falls back to tofu boxes. */
+body {
+  font-family: "Noto Sans Khmer", "Leelawadee UI", "Khmer OS Siemreap",
+    "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* The card grid container */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* grid-cols-1 */
+  gap: 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* md:grid-cols-2 */
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* lg:grid-cols-3 */
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Ensure each card stretches to fill its grid cell */
+.card-cell {
+  min-width: 0;
+}

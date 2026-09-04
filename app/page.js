@@ -1,56 +1,210 @@
-import collection from "../collection.config.js";
-import EntryCard from "../components/EntryCard.js";
+"use client";
 
-const styles = {
-  wrap: {
-    maxWidth: 720,
+import { useState } from "react";
+import { archiveEntries } from "../src/data/entries.js";
+import EntryCard from "../components/EntryCard.js";
+import "./home.css";
+
+// Khmer Unicode needs a font stack that includes Khmer-capable
+// typefaces, otherwise the script falls back to tofu boxes or clips.
+const FONT =
+  "'Noto Sans Khmer', 'Leelawadee UI', 'Khmer OS Siemreap', 'Segoe UI', system-ui, sans-serif";
+
+// All user-facing UI copy lives here so switching the header toggle
+// also switches the hero, placeholders, result count and empty state.
+const COPY = {
+  km: {
+    brand: "ពិធីបុណ្យប្រពៃណីខ្មែរ",
+    heroTitle: "ពិធីបុណ្យប្រពៃណីជាតិនៃកម្ពុជា",
+    heroSubtitle:
+      "ស្វែងរក និងមើលពិធីបុណ្យប្រពៃណីខ្មែរ ដែលបានរក្សាទុកក្នុងបណ្ណសាររស់នេះ។",
+    searchPlaceholder: "ស្វែងរកពិធីបុណ្យ ប្រភេទ ឬស្លាក…",
+    count: (n) => `បានបង្ហាញ ${n} ពិធីបុណ្យ`,
+    emptyTitle: "រកមិនឃើញពិធីបុណ្យ",
+    emptyText: "សូមសាកល្បងពាក្យផ្សេង ឬចុចប៊ូតុងកំណត់ស្វែងរកឡើងវិញ។",
+    reset: "កំណត់ស្វែងរកឡើងវិញ",
+  },
+  en: {
+    brand: "Khmer Living Festivals",
+    heroTitle: "Cambodia's Living Festivals",
+    heroSubtitle:
+      "Browse and search the Khmer festivals preserved in this living archive.",
+    searchPlaceholder: "Search festivals, categories, or tags…",
+    count: (n) => `${n} festival${n === 1 ? "" : "s"} shown`,
+    emptyTitle: "No festivals found",
+    emptyText: "Try a different keyword, or reset the search below.",
+    reset: "Reset Search",
+  },
+};
+
+// Featured photo used as the hero banner background (from /public).
+const HERO_IMAGE =
+  "url('/Khmer%20New%20Year%20(Choul%20Chnam%20Thmey).png')";
+
+const STYLES = {
+  main: {
+    minHeight: "100vh",
+    fontFamily: FONT,
+    color: "#E8EDF2",
+    backgroundColor: "#14181F",
+  },
+  header: {
+    position: "sticky",
+    top: 0,
+    zIndex: 10,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "16px 32px",
+    backgroundColor: "#0E1218",
+    borderBottom: "1px solid #2E3644",
+  },
+  brand: {
+    fontSize: 18,
+    fontWeight: 700,
+    letterSpacing: 0.5,
+    color: "#E8EDF2",
+  },
+  toggle: {
+    display: "flex",
+    gap: 6,
+    backgroundColor: "#1C222C",
+    border: "1px solid #2E3644",
+    borderRadius: 999,
+    padding: 4,
+  },
+  toggleBtn: {
+    fontFamily: FONT,
+    fontSize: 13,
+    fontWeight: 600,
+    padding: "6px 16px",
+    borderRadius: 999,
+    border: "none",
+    backgroundColor: "transparent",
+    color: "#97A1B3",
+    cursor: "pointer",
+  },
+  toggleBtnActive: {
+    fontFamily: FONT,
+    fontSize: 13,
+    fontWeight: 800,
+    padding: "6px 16px",
+    borderRadius: 999,
+    border: "none",
+    backgroundColor: "#2EE6A8",
+    color: "#14181F",
+    cursor: "pointer",
+  },
+  hero: {
+    position: "relative",
+    textAlign: "center",
+    padding: "88px 24px 72px",
+    backgroundImage: `linear-gradient(rgba(14, 18, 24, 0.82), rgba(20, 24, 31, 0.94)), ${HERO_IMAGE}`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  },
+  heroInner: {
+    maxWidth: 640,
     margin: "0 auto",
-    padding: "80px 24px",
   },
   kicker: {
     fontFamily: "'Courier New', monospace",
+    fontSize: 13,
+    letterSpacing: 2,
+    textTransform: "uppercase",
     color: "#2EE6A8",
-    fontSize: 14,
-    letterSpacing: 1,
+    margin: 0,
   },
-  title: {
-    fontSize: 48,
-    fontWeight: 700,
-    margin: "16px 0 12px",
-    lineHeight: 1.1,
+  heroTitle: {
+    fontSize: 44,
+    fontWeight: 800,
+    lineHeight: 1.15,
+    margin: "12px 0 10px",
+    color: "#E8EDF2",
   },
-  description: {
+  heroSubtitle: {
     fontSize: 18,
-    color: "#97A1B3",
     lineHeight: 1.6,
-    margin: 0,
+    color: "#B9C1CE",
+    margin: "0 0 28px",
   },
-  card: {
-    marginTop: 48,
-    padding: 24,
-    backgroundColor: "#1C222C",
-    border: "1px solid #2E3644",
-    borderRadius: 10,
+  search: {
+    display: "flex",
+    justifyContent: "center",
   },
-  cardLabel: {
-    fontFamily: "'Courier New', monospace",
-    fontSize: 12,
-    color: "#97A1B3",
-    margin: 0,
-  },
-  cardValue: {
+  searchInput: {
+    width: "100%",
+    maxWidth: 520,
+    padding: "14px 44px 14px 20px",
     fontSize: 16,
-    margin: "6px 0 0",
+    fontFamily: FONT,
+    borderRadius: 999,
+    border: "1px solid #3A4656",
+    backgroundColor: "rgba(14, 18, 24, 0.85)",
+    color: "#E8EDF2",
+    outline: "none",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
   },
-  count: {
+  content: {
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "40px 24px 64px",
+  },
+  resultRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  resultCount: {
     fontFamily: "'Courier New', monospace",
     fontSize: 14,
     color: "#2EE6A8",
-    marginTop: 48,
+    margin: 0,
+    letterSpacing: 0.5,
+  },
+  resetInline: {
+    fontFamily: FONT,
+    fontSize: 13,
+    color: "#97A1B3",
+    background: "none",
+    border: "none",
+    textDecoration: "underline",
+    cursor: "pointer",
+  },
+  empty: {
+    textAlign: "center",
+    padding: "56px 24px",
+    backgroundColor: "#1C222C",
+    border: "1px dashed #3A4656",
+    borderRadius: 14,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: 700,
+    margin: "0 0 8px",
+    color: "#E8EDF2",
+  },
+  emptyText: {
+    fontSize: 15,
+    color: "#97A1B3",
+    margin: "0 0 22px",
+  },
+  resetBtn: {
+    fontFamily: FONT,
+    fontSize: 14,
+    fontWeight: 600,
+    padding: "10px 22px",
+    borderRadius: 999,
+    border: "1px solid #2EE6A8",
+    backgroundColor: "transparent",
+    color: "#2EE6A8",
+    cursor: "pointer",
   },
   footer: {
-    marginTop: 64,
-    paddingTop: 24,
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "24px 24px 48px",
     borderTop: "1px solid #2E3644",
     fontSize: 13,
     color: "#5A6373",
@@ -58,48 +212,112 @@ const styles = {
 };
 
 const Home = () => {
+  // Default language is Khmer; toggle switches km / en.
+  const [lang, setLang] = useState("km");
+  const [query, setQuery] = useState("");
+  const t = COPY[lang];
+
+  // Live, case-insensitive filter across Khmer + English titles,
+  // the category, and all tags.
+  const q = query.trim().toLowerCase();
+  const results = archiveEntries.filter((entry) => {
+    if (!q) return true;
+    const haystack = [
+      entry.titleKhmer,
+      entry.titleEnglish,
+      entry.category,
+      ...entry.tags,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+
   return (
-    <main style={styles.wrap}>
-      <p style={styles.kicker}>KHMER LIVING ARCHIVE</p>
-      <h1 style={styles.title}>{collection.name}</h1>
-      <p style={styles.description}>{collection.description}</p>
+    <main style={STYLES.main} lang={lang}>
+      {/* Header bar with brand + KM | EN toggle */}
+      <header style={STYLES.header}>
+        <span style={STYLES.brand}>{t.brand}</span>
+        <div style={STYLES.toggle} role="group" aria-label="Language">
+          <button
+            style={lang === "km" ? STYLES.toggleBtnActive : STYLES.toggleBtn}
+            onClick={() => setLang("km")}
+          >
+            Khmer
+          </button>
+          <button
+            style={lang === "en" ? STYLES.toggleBtnActive : STYLES.toggleBtn}
+            onClick={() => setLang("en")}
+          >
+            English
+          </button>
+        </div>
+      </header>
 
-      <div style={styles.card}>
-        <p style={styles.cardLabel}>CURATED BY</p>
-        <p style={styles.cardValue}>{collection.curator}</p>
+      {/* Hero banner */}
+      <section style={STYLES.hero}>
+        <div style={STYLES.heroInner}>
+          <p style={STYLES.kicker}>
+            {lang === "km" ? "បណ្ណសារខ្មែររស់" : "Khmer Living Archive"}
+          </p>
+          <h1 style={STYLES.heroTitle}>{t.heroTitle}</h1>
+          <p style={STYLES.heroSubtitle}>{t.heroSubtitle}</p>
+          <div style={STYLES.search}>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t.searchPlaceholder}
+              style={STYLES.searchInput}
+              aria-label={t.searchPlaceholder}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Results */}
+      <div style={STYLES.content}>
+        <div style={STYLES.resultRow}>
+          <p style={STYLES.resultCount}>{t.count(results.length)}</p>
+          {q && (
+            <button style={STYLES.resetInline} onClick={() => setQuery("")}>
+              {t.reset}
+            </button>
+          )}
+        </div>
+
+        {/* Card grid (responsive via home.css .card-grid) */}
+        {results.length > 0 ? (
+          <ul className="card-grid">
+            {results.map((entry) => (
+              <li key={entry.id} className="card-cell">
+                <EntryCard entry={entry} lang={lang} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div style={STYLES.empty}>
+            <p style={STYLES.emptyTitle}>
+              {lang === "en"
+                ? "No festivals found"
+                : "រកមិនឃើញពិធីបុណ្យ"}
+            </p>
+            <p style={STYLES.emptyText}>{t.emptyText}</p>
+            <button style={STYLES.resetBtn} onClick={() => setQuery("")}>
+              {t.reset}
+            </button>
+          </div>
+        )}
       </div>
-      <div style={styles.card}>
-        <p style={styles.cardLabel}>SOURCE</p>
-        <p style={styles.cardValue}>{collection.source}</p>
-      </div>
 
-      {/* Entry 1 */}
-      <EntryCard
-        title="Nom Ansorm Chchek"
-        description="Traditional sticky rice cake filled with ripe bananas and yellow mung beans, tightly wrapped in banana leaves and slow-cooked to a deep purple hue."
-        contributor="Nang Vannet"
-        place="Phnom Penh"
-        image="https://flavourfullygood.com/wp-content/uploads/2022/07/Num-Ansom-Chrouk-Cooked-Flavourfully-Good-1024x683.jpg"
-      />
-
-      {/* Entry 2 */}
-      <EntryCard
-        title="Nom Ansorm Khpos"
-        description="A savory variation packed with pork belly and mung beans, prepared traditionally during Pchum Ben and Khmer New Year festivals."
-        contributor="Family Recipe"
-        place="Kandal Province"
-        image="https://www.shutterstock.com/image-photo/num-ansom-jrouk-khmer-sticky-260nw-2048965706.jpg"
-      />
-
-      <p style={styles.count}>entries in the archive: 2 (for now)</p>
-
-      <footer style={styles.footer}>
-        Built in ICT 340 — Vibe Coding, American University of Phnom Penh, Fall
-        2026. This archive is under construction all semester. Come back in
-        December.
+      <footer style={STYLES.footer}>
+        Built in ICT 340 — Vibe Coding, American University of Phnom Penh,
+        Fall 2026.
       </footer>
     </main>
   );
 };
 
 export default Home;
+
+
